@@ -1,3 +1,7 @@
+= API Mamazon
+:author: Léo Chéneau
+:date: 2022-09-23
+
 # InventoryProcessAPI
 
 API d'intercommunication entre les interfaces et le backend.
