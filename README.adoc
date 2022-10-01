@@ -5,8 +5,7 @@ v1.1 2022-10-01
 :toc: macro
 :toc-title: Tables des matières
 :toclevels: 3
-:source-highlighter: highlight.js
-:highlightjs-theme: googlecode
+:source-highlighter: rouge
 :stem: latexmath
 :data-uri:
 
@@ -48,7 +47,7 @@ Une erreur sera signifiée par un code d'erreur HTTP 4XX.
 
 === Connexion et sécurité
 
-Afin de garantir la sécurité, les clients doivent s'authentifier via la page `auth.php` et récupérer un JWT.
+Afin de garantir la sécurité, les clients doivent s'authentifier via la page `auth.php` et récupérer un https://jwt.io/[JWT].
 
 image::doc/seq_auth.png[Diagramme de séquence auth.php]
 
