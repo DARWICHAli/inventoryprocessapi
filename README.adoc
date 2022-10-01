@@ -1,6 +1,14 @@
-:title: API Mamazon
-:author: Léo Chéneau
-:date: 2022-09-23
+= API Mamazon
+Léo Chéneau
+v1.1 2022-10-01
+:doctype: report
+:toc: macro
+:toc-title: Tables des matières
+:toclevels: 3
+:source-highlighter: highlight.js
+:highlightjs-theme: googlecode
+:stem: latexmath
+:data-uri:
 
 API d'intercommunication entre les interfaces et le backend.
 
@@ -12,7 +20,8 @@ Les entrées se font **toujours** en _JSON_.
 
 Format d'un message à l'API.
 
-```json
+[source, json]
+----
 {
     "code": 0, /* int: API code */
     "token": "xxxx", /* string: JWT token */
@@ -21,7 +30,7 @@ Format d'un message à l'API.
         "property": value
     }
 }
-```
+----
 
 Les réponses sont au format JSON si succès.
 
@@ -41,11 +50,11 @@ Une erreur sera signifiée par un code d'erreur HTTP 4XX.
 
 Afin de garantir la sécurité, les clients doivent s'authentifier via la page `auth.php` et récupérer un JWT.
 
-!(./doc/seq_auth.png)[Diagramme de séquence auth.php]
+image::doc/seq_auth.png[Diagramme de séquence auth.php]
 
 === Requêtes
 
-!(./doc/seq_query.png)[Diagramme de séquence query.php]
+image::doc/seq_query.png[Diagramme de séquence query.php]
 
 == Accès direct au SGBD
 
