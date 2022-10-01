@@ -1,15 +1,12 @@
-= API Mamazon
+:title: API Mamazon
 :author: Léo Chéneau
 :date: 2022-09-23
 
-# InventoryProcessAPI
-
 API d'intercommunication entre les interfaces et le backend.
 
+== Entrées / Sorties
 
-## Entrées / Sorties
-
-### JSON
+=== JSON
 
 Les entrées se font **toujours** en _JSON_.
 
@@ -28,7 +25,7 @@ Format d'un message à l'API.
 
 Les réponses sont au format JSON si succès.
 
-### Pages
+=== Pages
 
 L'API est comprise de deux pages : 
 
@@ -36,24 +33,20 @@ L'API est comprise de deux pages :
 
 * `query.php` pour les requêtes à l'API
 
-### Erreurs
+=== Erreurs
 
 Une erreur sera signifiée par un code d'erreur HTTP 4XX.
 
-### Connexion et sécurité
+=== Connexion et sécurité
 
 Afin de garantir la sécurité, les clients doivent s'authentifier via la page `auth.php` et récupérer un JWT.
 
 !(./doc/seq_auth.png)[Diagramme de séquence auth.php]
 
-### Requêtes
+=== Requêtes
 
 !(./doc/seq_query.png)[Diagramme de séquence query.php]
 
-### Requêtes
-
-.... à venir
-
-## Accès BDD direct
+== Accès direct au SGBD
 
 .... à venir
