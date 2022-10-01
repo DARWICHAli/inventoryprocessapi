@@ -13,7 +13,7 @@ auth -[#green]> client: HTTP=200 {JWT token}
 
 else failure: user doesn't exist
 bdd -[#red]> auth: error
-auth -[#red]> client: HTTP=403
+auth -[#red]x client: HTTP=403
 end
 
 @enduml
