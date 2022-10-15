@@ -137,6 +137,56 @@ Requête ajoutant un objet au stock.
 ----
 ****
 
+=== Réponse du serveur à ajout (code 2)
+
+Réponse renvoyée par le serveur après une demande des noms d'entrepôts.
+
+.Champs
+|===
+| **Nom** | Type | Valeur
+| list | _array[string]_ | Liste des noms
+|===
+
+.Exemple
+****
+[source, json]
+----
+{
+    "code": 2,
+    "content": {
+    	"list": [
+		"A",
+		"B"
+	]
+     }
+}
+----
+****
+
+=== Demande des noms des entrepôts (code 3)
+
+Demande le nom des entrepôts (warehouse)
+
+.Champs
+|===
+| **Nom** | Type | Valeur
+|===
+
+Le serveur répond avec un JSON de code 2.
+
+.Exemple
+****
+[source, json]
+----
+{
+    "code": 3,
+    "token": "VALID",
+    "content": {
+
+    }
+}
+----
+****
 === Requêtes nécessaires à InventoryManagement
 
 **à vous de me dire**
