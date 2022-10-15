@@ -105,8 +105,8 @@ Requête ajoutant un objet au stock.
 .Champs
 |===
 | **Nom** | Type | Valeur
-| warehouse | _string_ | Code magasin
 | location | **JSON** | emplacement
+| location.warehouse | _string_ | Code magasin
 | location.allee | _string_ | allée
 | location.travee | _string_ | travée
 | location.niveau | _string_ | niveau
@@ -123,8 +123,8 @@ Requête ajoutant un objet au stock.
     "code": 1,
     "token": "VALID",
     "content": {
-    		"warehouse": "MAG1",
 		"location": {
+			"warehouse": "MAG1"
 			"allee": "A",
 			"travee": "02",
 			"niveau": "02",
@@ -187,6 +187,93 @@ Le serveur répond avec un JSON de code 2.
 }
 ----
 ****
+
+=== Réponse du serveur à la demande des produits (code 4)
+
+Réponse renvoyée par le serveur après une demande des produits présents dans un entrepôt.
+
+.Champs
+|===
+| **Nom** | Type | Valeur
+| list | _array[JSON]_ | Liste des Produits
+| list[N].product | _id_ | Code produit
+| list[N].name | _string_ | Nom du produit
+| list[N].quantity | _int_ | Quantité à cet endroit
+| list[N].location | **JSON** | emplacement
+| list[N].location.warehouse | _string_ | Code magasin
+| list[N].location.allee | _string_ | allée
+| list[N].location.travee | _string_ | travée
+| list[N].location.niveau | _string_ | niveau
+| list[N].location.alveole | _string_ | emplacement dans l'avéole
+|===
+
+.Exemple
+****
+[source, json]
+----
+{
+    "code": 4,
+    "content": {
+    	"list": [
+		{
+			"code": "E961307",
+			"name": "rollers",
+			"quantity": 100,
+			"location": {
+				"warehouse": "MAG1"
+				"allee": "A",
+				"travee": "02",
+				"niveau": "02",
+				"alveole": "03"
+			},
+		/* autre produit */
+	]
+     }
+}
+----
+****
+
+=== Demande d'informations sur les produits (code 5)
+
+Demande le nom des entrepôts (warehouse)
+
+.Champs
+|===
+| **Nom** | Type | Valeur
+| product | _string_ | Code produit ou `*`
+| location | **JSON** | emplacement
+| location.warehouse | _string_ | Code magasin ou `*`
+| location.allee | _string_ | allée ou `*`
+| location.travee | _string_ | travée ou `*`
+| location.niveau | _string_ | niveau ou `*`
+| location.alveole | _string_ | emplacement dans l'avéole ou `*`
+|===
+
+Le serveur répond avec un JSON de code 4.
+
+.Exemple
+****
+[source, json]
+----
+{
+    "code": 5,
+    "token": "VALID",
+    "content": {
+		"location": {
+			"warehouse": "MAG1"
+			"allee": "*",
+			"travee": "*",
+			"niveau": "*",
+			"alveole": "*",
+		},
+		"product": "*",
+    }
+}
+----
+
+Cet exemple extrait tous les produits de l'entrepot _MAG1_.
+****
+
 === Requêtes nécessaires à InventoryManagement
 
 **à vous de me dire**
