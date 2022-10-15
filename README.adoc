@@ -274,6 +274,47 @@ Le serveur répond avec un JSON de code 4.
 Cet exemple extrait tous les produits de l'entrepot _MAG1_.
 ****
 
+=== Ajustement de stock (code 7)
+
+Requête ajustant un objet présent dans le stock.
+
+Le serveur répond avec un JSON de code 0.
+
+.Champs
+|===
+| **Nom** | Type | Valeur
+| location | **JSON** | emplacement
+| location.warehouse | _string_ | Code magasin
+| location.allee | _string_ | allée
+| location.travee | _string_ | travée
+| location.niveau | _string_ | niveau
+| location.alveole | _string_ | emplacement dans l'avéole
+| product | _string_ | code produit
+| newqt | _int_ | Nouvelle quantité
+|===
+
+.Exemple
+****
+[source, json]
+----
+{
+    "code": 1,
+    "token": "VALID",
+    "content": {
+		"location": {
+			"warehouse": "MAG1"
+			"allee": "A",
+			"travee": "02",
+			"niveau": "02",
+			"alveole": "03",
+		},
+		"product": "E961307",
+		"newqt": 50
+    }
+}
+----
+****
+
 === Requêtes nécessaires à InventoryManagement
 
 **à vous de me dire**
