@@ -1,0 +1,320 @@
+= API Mamazon
+Léo Chéneau
+v1.1 2022-10-01
+:doctype: report
+:toc: macro
+:toc-title: Tables des matières
+:toclevels: 3
+:source-highlighter: rouge
+:stem: latexmath
+:data-uri:
+
+API d'intercommunication entre les interfaces et le backend.
+
+== Entrées / Sorties
+
+=== JSON
+
+Les entrées se font **toujours** en _JSON_.
+
+Format d'un message à l'API.
+
+[source, json]
+----
+{
+    "code": 0, /* int: API code */
+    "token": "xxxx", /* string: JWT token */
+    "content": {
+        /* request content */
+        "property": value
+    }
+}
+----
+
+Les réponses sont au format JSON si succès.
+
+=== Pages
+
+L'API est comprise de deux pages : 
+
+* `auth.php` pour l'authentification.
+
+* `query.php` pour les requêtes à l'API
+
+=== Erreurs
+
+Une erreur sera signifiée par un code d'erreur HTTP 4XX.
+
+=== Connexion et sécurité
+
+Afin de garantir la sécurité, les clients doivent s'authentifier via la page `auth.php` et récupérer un https://jwt.io/[JWT]. Ces accès se font via une connexion TLSv3. Les champs `username` et `password` sont à envoyer par requête POST. La page répond un JWT brut (texte) si les informations sont correctes et renvoie une erreur dans le cas contraire.
+
+image::doc/seq_auth.png[Diagramme de séquence auth.php]
+
+=== Requêtes
+
+Les requêtes sont à envoyer au format JSON à la page `query.php`. Toute requête doit posséder un champ _code_ et _token_ (obtenu depuis `auth.php`). Le serveur répond par un fichier JSON ou bien par une erreur si un problème est survenu.
+
+image::doc/seq_query.png[Diagramme de séquence query.php]
+
+== Accès direct au SGBD
+
+Le SGBD est une base de données MariaDB, contacter @cheneau pour les accès directs.
+
+== Liste des requêtes et réponses
+
+=== Introduction
+
+Chaque type requête et chaque type de réponse possède un code. Les requêtes possèdent un code impair, les réponses des codes pairs. +
+Ce code est présent dans le champ `code` au niveau le plus élevé du JSON.
+Chaque requête doit posséder un champ `token` contenant un JWT obtenu depuis la page **auth.php**.
+
+Les champs mentionnés plus bas sont ceux du super-champ `content`.
+
+=== Réponse du serveur à ajout (code 0)
+
+Réponse renvoyée par le serveur après une tentative d'ajout.
+
+NOTE: Si tout s'est bien passé le code HTTP 200 est envoyé. Dans ce cas, il n'est pas nécessaire de parser cette réponse.
+
+.Champs
+|===
+| **Nom** | Type | Valeur
+| success | _int[0 ou 1]_ | Succès de l'opération, 1 = succès, 0 = échec
+| message | _string_ | Message contenant plus d'informations
+|===
+
+.Exemple
+****
+[source, json]
+----
+{
+    "code": 0,
+    "content": {
+    	"success": 0,
+	"message": "Invalid token"
+    }
+}
+----
+****
+
+=== Ajout d'un objet (code 1)
+
+Requête ajoutant un objet au stock.
+
+.Champs
+|===
+| **Nom** | Type | Valeur
+| location | **JSON** | emplacement
+| location.warehouse | _string_ | Code magasin
+| location.allee | _string_ | allée
+| location.travee | _string_ | travée
+| location.niveau | _string_ | niveau
+| location.alveole | _string_ | emplacement dans l'avéole
+| product | _string_ | code produit
+| qantity | _int_ | quantité
+|===
+
+.Exemple
+****
+[source, json]
+----
+{
+    "code": 1,
+    "token": "VALID",
+    "content": {
+		"location": {
+			"warehouse": "MAG1"
+			"allee": "A",
+			"travee": "02",
+			"niveau": "02",
+			"alveole": "03",
+		},
+		"product": "E961307",
+		"quantity": 100
+    }
+}
+----
+****
+
+=== Réponse du serveur à la demande des noms d'entrepôts (code 2)
+
+Réponse renvoyée par le serveur après une demande des noms d'entrepôts.
+
+.Champs
+|===
+| **Nom** | Type | Valeur
+| list | _array[string]_ | Liste des noms
+|===
+
+.Exemple
+****
+[source, json]
+----
+{
+    "code": 2,
+    "content": {
+    	"list": [
+		"A",
+		"B"
+	]
+     }
+}
+----
+****
+
+=== Demande des noms des entrepôts (code 3)
+
+Demande le nom des entrepôts (warehouse)
+
+.Champs
+|===
+| **Nom** | Type | Valeur
+|===
+
+Le serveur répond avec un JSON de code 2.
+
+.Exemple
+****
+[source, json]
+----
+{
+    "code": 3,
+    "token": "VALID",
+    "content": {
+
+    }
+}
+----
+****
+
+=== Réponse du serveur à la demande des produits (code 4)
+
+Réponse renvoyée par le serveur après une demande des produits présents dans un entrepôt.
+
+.Champs
+|===
+| **Nom** | Type | Valeur
+| list | _array[JSON]_ | Liste des Produits
+| list[N].product | _id_ | Code produit
+| list[N].name | _string_ | Nom du produit
+| list[N].quantity | _int_ | Quantité à cet endroit
+| list[N].location | **JSON** | emplacement
+| list[N].location.warehouse | _string_ | Code magasin
+| list[N].location.allee | _string_ | allée
+| list[N].location.travee | _string_ | travée
+| list[N].location.niveau | _string_ | niveau
+| list[N].location.alveole | _string_ | emplacement dans l'avéole
+|===
+
+.Exemple
+****
+[source, json]
+----
+{
+    "code": 4,
+    "content": {
+    	"list": [
+		{
+			"code": "E961307",
+			"name": "rollers",
+			"quantity": 100,
+			"location": {
+				"warehouse": "MAG1"
+				"allee": "A",
+				"travee": "02",
+				"niveau": "02",
+				"alveole": "03"
+			},
+		/* autre produit */
+	]
+     }
+}
+----
+****
+
+=== Demande d'informations sur les produits (code 5)
+
+Demande le nom des entrepôts (warehouse)
+
+.Champs
+|===
+| **Nom** | Type | Valeur
+| product | _string_ | Code produit ou `*`
+| location | **JSON** | emplacement
+| location.warehouse | _string_ | Code magasin ou `*`
+| location.allee | _string_ | allée ou `*`
+| location.travee | _string_ | travée ou `*`
+| location.niveau | _string_ | niveau ou `*`
+| location.alveole | _string_ | emplacement dans l'avéole ou `*`
+|===
+
+Le serveur répond avec un JSON de code 4.
+
+.Exemple
+****
+[source, json]
+----
+{
+    "code": 5,
+    "token": "VALID",
+    "content": {
+		"location": {
+			"warehouse": "MAG1"
+			"allee": "*",
+			"travee": "*",
+			"niveau": "*",
+			"alveole": "*",
+		},
+		"product": "*",
+    }
+}
+----
+
+Cet exemple extrait tous les produits de l'entrepot _MAG1_.
+****
+
+=== Ajustement de stock (code 7)
+
+Requête ajustant un objet présent dans le stock.
+
+Le serveur répond avec un JSON de code 0.
+
+.Champs
+|===
+| **Nom** | Type | Valeur
+| location | **JSON** | emplacement
+| location.warehouse | _string_ | Code magasin
+| location.allee | _string_ | allée
+| location.travee | _string_ | travée
+| location.niveau | _string_ | niveau
+| location.alveole | _string_ | emplacement dans l'avéole
+| product | _string_ | code produit
+| newqt | _int_ | Nouvelle quantité
+|===
+
+.Exemple
+****
+[source, json]
+----
+{
+    "code": 1,
+    "token": "VALID",
+    "content": {
+		"location": {
+			"warehouse": "MAG1"
+			"allee": "A",
+			"travee": "02",
+			"niveau": "02",
+			"alveole": "03",
+		},
+		"product": "E961307",
+		"newqt": 50
+    }
+}
+----
+****
+
+=== Requêtes nécessaires à InventoryManagement
+
+**à vous de me dire**
