@@ -137,7 +137,7 @@ Requête ajoutant un objet au stock.
 ----
 ****
 
-=== Réponse du serveur à ajout (code 2)
+=== Réponse du serveur à la demande des noms d'entrepôts (code 2)
 
 Réponse renvoyée par le serveur après une demande des noms d'entrepôts.
 
