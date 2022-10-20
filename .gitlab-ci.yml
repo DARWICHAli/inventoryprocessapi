@@ -4,20 +4,9 @@ stages:
   - build
   - deploy
 
-.build_container: &build_container
-  stage: build
-  interruptible: true
-  retry:
-    when:
-      - runner_system_failure
-      - stuck_or_timeout_failure
-        #only:
-        #refs:
-        #- main
-
 # x86 build using Kaniko (no need to be privilegied)
-build_container:x86:
-  <<: *build_container
+build_container_x86:
+  stage: build
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [ "" ]
@@ -29,42 +18,6 @@ build_container:x86:
     # Login to the two image registries
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --cache=true --cache-repo=$CACHE_REPO --destination $IMAGE_TAG
-
-# ARM/v7 build, not supported by Kaniko (we are using host Docker (not exactly dind), see raspberry-pi config and https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4260)
-build_container:armv7:
-  <<: *build_container
-  image: docker:19.03-dind
-  variables:
-    IMAGE_TAG: $CI_REGISTRY_IMAGE:armv7-$CI_COMMIT_REF_SLUG
-  before_script:
-    # Gitlab main repository
-    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-  script:
-    - docker pull $IMAGE_TAG || true
-    - docker build --cache-from $IMAGE_TAG -t $IMAGE_TAG --progress=plain .
-    - docker push $IMAGE_TAG
-  tags:
-    - arm
-    - privileged
-
-build_container:assemble_manifests:
-  stage: deploy
-  needs:
-    - build_container:x86
-    - build_container:armv7
-  image: docker:19.03
-  variables:
-    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-  before_script:
-    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-  script:
-    - export DOCKER_CLI_EXPERIMENTAL=enabled # Docker manifest is an experimental feature
-    - docker manifest create $IMAGE_TAG $CI_REGISTRY_IMAGE:armv7-$CI_COMMIT_REF_SLUG $CI_REGISTRY_IMAGE:x86-$CI_COMMIT_REF_SLUG
-    - docker manifest push $IMAGE_TAG
-  tags:
-    - arm
-    - privileged
   only:
     refs:
       - main
-
