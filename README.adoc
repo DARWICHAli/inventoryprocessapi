@@ -323,13 +323,19 @@ Cette section détaille les différentes pages de l'API **pour les développeurs
 
 === Architecture
 
-* `static/bdd.php` : Header à inclure pour se connecter à la BDD. Il exporte un objet _PDO_ nommé `$pdo` permettant d'accéder au SGBD.
+* `include` : Dossier contenant des fonctions, classes et variables utiles. tout son contenu est **non accessible à l'utilisateur de l'API.
 
-* `static/secrets.php` : Header chargé de charger les secrets (clés RSA, etc.) depuis l'environnement. Exporte les variables `$private_key` et `public_key`.
+** `include/bdd.php` : Header à inclure pour se connecter à la BDD. Il exporte un objet _PDO_ nommé `$pdo` permettant d'accéder au SGBD.
 
-* `static/config.php` : Header définissant les paramètres globaux du serveur (exception, etc.). **À inclure dans toutes les pages publiques**.
+** `include/secrets.php` : Header chargé de charger les secrets (clés RSA, etc.) depuis l'environnement. Exporte les variables `$private_key` et `public_key`.
 
-* `static/jwt.php` : Header définissant les fonctions liées au JWT. Exporte les fonctions `parse_token`, et `create_token`.
+** `include/config.php` : Header définissant les paramètres globaux du serveur (exception, etc.). **À inclure dans toutes les pages publiques**.
+
+** `include/jwt.php` : Header définissant les fonctions liées au JWT. Exporte les fonctions `parse_token`, et `create_token`.
+
+* `secrets` : Dossier contenant les fichiers sensibles. **Non accessible à l'utilisateur de l'API.**
+
+* `static` : Contient les pages accessibles à l'utilisateur final.
 
 === Format du JWT
 
