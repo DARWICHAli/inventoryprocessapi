@@ -38,8 +38,8 @@ Les réponses sont au format JSON si succès.
 L'API est comprise de deux pages : 
 
 * `auth.php` pour l'authentification.
-
-* `query.php` pour les requêtes à l'API
+ 
+* `query.php` script qui se connecte à une bdd, exécute une requête, et envoie une réponse JSON
 
 === Erreurs
 
@@ -58,6 +58,14 @@ Pour des raisons de sécurité, les mots de passe seront salés et stoqués sous
 Les requêtes sont à envoyer au format JSON à la page `query.php`. Toute requête doit posséder un champ _code_ et _token_ (obtenu depuis `auth.php`). Le serveur répond par un fichier JSON ou bien par une erreur si un problème est survenu.
 
 image::doc/seq_query.png[Diagramme de séquence query.php]
+
+
+==== Exécution normale 
+La page `query.php` reçoit la requête. Le Token est vérifié et une réponse est envoyée au format JSON. +
+Si le Token est valide, une instance de Database et de Query sont créées. La requête est parsée dans la classe Query par la méthode ParseQuery qui fait appel à la méthode correspondante selon le code de la requête (insert, getWarehouses, getProducts ou update). + 
+La méthode retourne le résultat sous format `array`. Ce résultat est encodé sous format JSON dans la page `query.php` et envoyé.
+
+image::doc/UML.png[Diagramme de classes]
 
 == Accès direct au SGBD
 
