@@ -357,6 +357,7 @@ Tous les champs du header sont fixes. L'algorithme RS256 est utilisé et combine
 {
   "iss": "mamazon.zefresk.com", /* fixe */
   "sub": "username",
+  "uid": 154,
   "aud": "1",
   "iat": 1516239022,
   "exp": 1516239023,
@@ -367,6 +368,8 @@ Tous les champs du header sont fixes. L'algorithme RS256 est utilisé et combine
 * `iss`: _issuer_, émetteur du JWT. Fixé à 'mamazon.zefresk.com'.
 
 * `sub`: _subject_, nom d'utilisateur du récepteur.
+
+* `uid`: _user ID_, entier correspondant à `id_utilisateur` du SGBD.
 
 * `aud`: _audience_, niveau de privilèges du récepteur.
 
