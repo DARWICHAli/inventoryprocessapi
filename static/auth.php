@@ -4,9 +4,9 @@
  * Génère un JWT à partir d'un requête POST ['username' = xx, 'password' = yy]
  */
 
-require_once 'config.php';
-require_once 'bdd.php';
-require_once 'jwt.php';
+require_once 'include/config.php';
+require_once 'include/bdd.php';
+require_once 'include/jwt.php';
 
 global $pdo;
 
@@ -18,13 +18,13 @@ $username = get_var($_POST, 'username');
 $password = get_var($_POST, 'password');
 
 if ($username == '') {
-	echo("field 'username' is required");
-	die(400);
+	http_response_code(400);
+	die("field 'username' is required");
 }
 
 if ($password == '') {
-	echo("field 'password' is required");
-	die(400);
+	http_response_code(400);
+	die("field 'password' is required");
 }
 
 /* Génération d'un hash SHA3-512 salé */
@@ -39,14 +39,14 @@ $prep->bindValue('hpass', $hashed_password);
 /* Exécution */
 $ret = $prep->fetch(PDO::FETCH_ASSOC);
 if (!$ret) {
-	echo("Authentification failed");
-	die(403);
+	http_response_code(403);
+	die("Authentification failed");
 } else {
 	$privileges = $ret['privileges'];
 	$uid = $ret['id_utilisateur'];
 	$jwt = create_token($username, $uid, $privileges);
 	echo($jwt);
-	die(200);
+	http_response_code(200);
 }
 
 ?>

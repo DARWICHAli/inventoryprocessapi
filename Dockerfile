@@ -9,5 +9,6 @@ RUN docker-php-source extract \
 
 COPY ./static /var/www/html
 COPY ./vendor ./vendor
+COPY ./config/apache2.conf /etc/apache2/apache2.conf
 
 EXPOSE 80
