@@ -3,7 +3,7 @@
 class QueryClass {
 
     // DB stuff
-    private $connection;
+    private $conn;
     private $table;
 
     // Post Properties
@@ -12,8 +12,8 @@ class QueryClass {
     public $token;
 
     // Constructor with DB
-    public function __construct($db) {
-      $this->conn = $db;
+    public function __construct($pdo) {
+      $this->conn = $pdo;
     }
 
     // Parser la requête

@@ -35,13 +35,9 @@ Les réponses sont au format JSON si succès.
 
 === Pages
 
-L'API est comprise de quatre pages : 
+L'API est comprise de deux pages : 
 
 * `auth.php` pour l'authentification.
-
-* `Database.php` classe représentant la base de données
-
-* `QueryClass.php` classe représentant une requête à parser et exécuter
  
 * `query.php` script qui se connecte à une bdd, exécute une requête, et envoie une réponse JSON
 

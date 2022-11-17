@@ -1,18 +1,17 @@
 <?php
 
+    require_once 'bdd.php';
+
+    global $pdo;
+
     // Headers
-    header('Access-Control-Allow-Origin: *');
     header('Content-Type: application/json');
 
     include_once 'Database.php';
     include_once 'QueryClass.php';
 
-    // Instantiate DB & connect
-    $database = new Database();
-    $db = $database->connect();
-
     // Instantiate blog post object
-    $post = new QueryClass($db);
+    $post = new QueryClass($$pdo);
 
     // Receive JSON file and converts it into a PHP object
     // TEST
