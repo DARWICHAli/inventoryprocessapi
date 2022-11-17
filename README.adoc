@@ -1,6 +1,6 @@
 = API Mamazon
 Léo Chéneau
-v1.1 2022-10-01
+v1.2 2022-11-15
 :doctype: report
 :toc: macro
 :toc-title: Tables des matières
@@ -50,6 +50,8 @@ Une erreur sera signifiée par un code d'erreur HTTP 4XX.
 Afin de garantir la sécurité, les clients doivent s'authentifier via la page `auth.php` et récupérer un https://jwt.io/[JWT]. Ces accès se font via une connexion TLSv3. Les champs `username` et `password` sont à envoyer par requête POST. La page répond un JWT brut (texte) si les informations sont correctes et renvoie une erreur dans le cas contraire.
 
 image::doc/seq_auth.png[Diagramme de séquence auth.php]
+
+Pour des raisons de sécurité, les mots de passe seront salés et stoqués sous forme d'un condensat SHA3-512.
 
 === Requêtes
 
@@ -315,6 +317,62 @@ Le serveur répond avec un JSON de code 0.
 ----
 ****
 
-=== Requêtes nécessaires à InventoryManagement
+== Architecture de l'API
 
-**à vous de me dire**
+Cette section détaille les différentes pages de l'API **pour les développeurs de l'API**. Ces pages ne sont pas toutes publiques.
+
+=== Architecture
+
+* `static/bdd.php` : Header à inclure pour se connecter à la BDD. Il exporte un objet _PDO_ nommé `$pdo` permettant d'accéder au SGBD.
+
+* `static/secrets.php` : Header chargé de charger les secrets (clés RSA, etc.) depuis l'environnement. Exporte les variables `$private_key` et `public_key`.
+
+* `static/config.php` : Header définissant les paramètres globaux du serveur (exception, etc.). **À inclure dans toutes les pages publiques**.
+
+* `static/jwt.php` : Header définissant les fonctions liées au JWT. Exporte les fonctions `parse_token`, et `create_token`.
+
+=== Format du JWT
+
+Le JWT est un fichier JSON classique sérializé en base 64. Il contient deux parties séparées par un caractère '.' : le header et le Payload.
+
+Le contenu des JWT générés et lus par `auth.php` est décrit dans les parties suivantes.
+
+Les champs utilisés sont standardisés et conformes à la link::https://www.rfc-editor.org/rfc/rfc7519[RFC 7519: JSON Web Token (JWT)].
+
+==== Header
+
+[source, json]
+----
+{
+  "alg": "RS256",
+  "typ": "JWT"
+}
+----
+Tous les champs du header sont fixes. L'algorithme RS256 est utilisé et combine une clé RSA et un condensat SHA-256. C'est la link::https://stackoverflow.com/questions/51489637/what-are-the-differences-between-jwt-rs256-rs384-and-rs512-algorithms[Méthode recommandée].
+
+==== Payload
+
+[source, json]
+----
+{
+  "iss": "mamazon.zefresk.com", /* fixe */
+  "sub": "username",
+  "aud": "1",
+  "iat": 1516239022,
+  "exp": 1516239023,
+  "jti": "deadbeef"
+}
+----
+
+* `iss`: _issuer_, émetteur du JWT. Fixé à 'mamazon.zefresk.com'.
+
+* `sub`: _subject_, nom d'utilisateur du récepteur.
+
+* `aud`: _audience_, niveau de privilèges du récepteur.
+
+* `iat`: _issued at time_, timestamp du moment de l'émission du jeton.
+
+* `exp`: _expire_, timestamp marquant la date de péremption du jeton.
+
+* `jti`: _JWT ID_, identifiant héxadécimal aléatoire du jeton pour éviter les attaques par replay.
+
