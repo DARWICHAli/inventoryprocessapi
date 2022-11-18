@@ -3,6 +3,7 @@
     header('Content-Type: application/json');
 
     include_once 'QueryClass.php';
+    include_once 'utils.php';
 
     require_once 'config.php';
     require_once 'bdd.php';
@@ -17,19 +18,56 @@
 
     // Verify valid JSON format
     if (json_last_error() !== JSON_ERROR_NONE) {
-        echo 'Invalid JSON format',  "\n";
-        die(400);
+        raise_https_error("Invalid JSON format \n", 400);
     }
 
     // Verify and parse request
-    $post->verify_and_parse_request($data);
+    if( ($msg = $post->verify_and_parse_request($data) !== null)){
+        raise_https_error($msg, 400);
+    }
 
     // Verify token
-    $post->verify_token();
+    if( ($msg = $post->verify_token($data) !== null)){
+        raise_https_error($msg, 401);
+    }
 
     // Execute query 
-    $result = $post->verify_and_execute_query();
+    $response;
+    switch($post->get_code()){
+
+        case 1:
+            if($post->verify_update_insert_query()){
+                raise_https_error("Invalid request", 400);
+            }
+            $response = $post->insert();
+            break;
+
+        case 3:
+            if($post->verify_warehouses_query()){
+                raise_https_error("Invalid request", 400);
+            }
+            $response = $post->getWarehouses();
+            break;
+
+        case 5:
+            if($post->verify_products_query()){
+                raise_https_error("Invalid request", 400);
+            }
+            $response = $post->getProducts();
+            break;
+
+        case 7:
+            if($post->verify_update_insert_query()){
+                raise_https_error("Invalid request", 400);
+            }
+            $response = $post->update();
+            break;
+
+        default:
+            break;
+    }
 
     // Json Encoding
-    echo json_encode($result);
+    echo json_encode($response);
+    die(200);
 ?>
