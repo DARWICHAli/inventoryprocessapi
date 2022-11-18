@@ -3,7 +3,11 @@ actor client as client
 participant auth.php as auth #yellow
 database SGBD as bdd #green
 
-client -> auth: JSON{code=1,login, password}
+client -> auth: POST{login, password}
+alt failure: bad request format
+auth -[#red]x client: HTTP=400
+end
+
 auth -> bdd: check user privileges
 
 alt success: user exists
