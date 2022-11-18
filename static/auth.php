@@ -39,7 +39,7 @@ $prep->bindValue('hpass', $hashed_password);
 /* Exécution */
 $ret = $prep->fetch(PDO::FETCH_ASSOC);
 if (!$ret) {
-	echo("Authentification failed");
+	echo("Authentication failed");
 	die(403);
 } else {
 	$privileges = $ret['privileges'];
@@ -47,5 +47,7 @@ if (!$ret) {
 	echo($jwt);
 	die(200);
 }
+
+
 
 ?>

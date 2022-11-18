@@ -1,5 +1,7 @@
 <?php
 
+include_once 'jwt.php';
+
 class QueryClass {
 
     // DB stuff
@@ -10,30 +12,67 @@ class QueryClass {
     public $code;
     public $content;
     public $token;
+    public $parsed_token;
 
     // Constructor with DB
     public function __construct($pdo) {
-      $this->conn = $pdo;
+        $this->conn = $pdo;
     }
 
-    // Parser la requête
-    public function parse_query($data){
-        $this->code = $data->{'code'};
-        $this->token = $data->{'token'};
-        $this->content = $data->{'content'};
+    // Vérifier et parser la requête
+    public function verify_and_parse_request($data){
+
+        if(sizeof($data) != 3){
+            echo 'invalid request format', "\n";
+            die(400);
+        }
+        else{
+            if( ! array_key_exists("code", $data) || ! array_key_exists("token", $data)
+                    || ! array_key_exists("content", $data)){
+                echo 'invalid request format', "\n";
+                die(400);
+            }
+            else{
+                if(gettype($data['code']) != 'integer' || !in_array($data['code'], array(1, 3, 4, 7))){
+                    echo 'invalid request code ', $data['code'], "\n";
+                    die(400);
+                }
+                else if(gettype($data['token']) != 'string'){
+                    echo 'invalid token format', "\n";
+                    die(400);
+                }
+                else if(gettype($data['content']) != 'array'){
+                    echo 'invalid content format', "\n";
+                    die(400);
+                }
+            }
+        }
+
+        $this->code = $data['code'];
+        $this->token = $data['token'];
+        $this->content = $data['content'];
     }
 
     public function verify_token(){
-
+        try{
+            $this->parsed_token = parse_token($this->token);
+        }
+        catch(Exception $e){
+            echo 'Invalid Token:' , $e->getMessage() , '\n';
+            die(401);
+        }
     }
 
     // Execution des requêtes
-    public function execute_query(){
+    public function verify_and_execute_query(){
 
         $response;
 
         // Ajout d'un objet
         if($this->code == 1){
+
+            $this->verify_update_insert_query();
+
             $result = $this->insert();
             // succès
             if($result === null){
@@ -47,18 +86,27 @@ class QueryClass {
 
         // Demande des noms d'entrepôts
         else if($this->code == 3){
+
+            $this->verify_warehouses_query();
+
             $content = $this->getWarehouses();
             $response = array("code" => 2, "content" => $content);
         }
 
         // Demande d'informations sur les produits
         else if($this->code == 5){
+
+            $this->verify_products_query();
+
             $content = $this->getProducts();
             $response = array("code" => 4, "content" => $content);
         }
 
         // Ajustement de stock
         else if($this->code == 7){
+
+            $this->verify_update_insert_query();
+
             $result = $this->update();
             // succès
             if($result === null){
@@ -151,8 +199,8 @@ class QueryClass {
         return array('list' => $products);
       }
 
-    // Create Post
-    public function create() {
+    // Insert Post
+    public function insert() {
 
         // Create query
         $query = '';
@@ -161,15 +209,15 @@ class QueryClass {
         $stmt = $this->conn->prepare($query);
 
         // Clean data
-        $product = htmlspecialchars(strip_tags($this->content->{'product'}));
-        $quantity = htmlspecialchars(strip_tags($this->content->{'quantity'}));
-        $location = htmlspecialchars(strip_tags($this->content->{'location'}));
+        $product = htmlspecialchars(strip_tags($this->content['product']));
+        $quantity = htmlspecialchars(strip_tags($this->content['quantity']));
+        $location = htmlspecialchars(strip_tags($this->content['location']));
 
-        $warehouse = htmlspecialchars(strip_tags($location->{'warehouse'}));
-        $allee = htmlspecialchars(strip_tags($location->{'allee'}));
-        $travee = htmlspecialchars(strip_tags($location->{'travee'}));
-        $niveau = htmlspecialchars(strip_tags($location->{'niveau'}));
-        $alveole = htmlspecialchars(strip_tags($location->{'alveole'}));
+        $warehouse = htmlspecialchars(strip_tags($location['warehouse']));
+        $allee = htmlspecialchars(strip_tags($location['allee']));
+        $travee = htmlspecialchars(strip_tags($location['travee']));
+        $niveau = htmlspecialchars(strip_tags($location['niveau']));
+        $alveole = htmlspecialchars(strip_tags($location['alveole']));
 
         // Bind data
         $stmt->bindParam(':product', $product);
@@ -185,9 +233,6 @@ class QueryClass {
         if($stmt->execute()) {
             return null;
         }
-
-        // Print error if something goes wrong
-        // printf("Error: %s.\n", $stmt->error);
 
         return $stmt->error;
     }
@@ -201,15 +246,15 @@ class QueryClass {
         $stmt = $this->conn->prepare($query);
 
         // Clean data
-        $product = htmlspecialchars(strip_tags($this->content->{'product'}));
-        $quantity = htmlspecialchars(strip_tags($this->content->{'quantity'}));
-        $location = htmlspecialchars(strip_tags($this->content->{'location'}));
+        $product = htmlspecialchars(strip_tags($this->content['product']));
+        $quantity = htmlspecialchars(strip_tags($this->content['quantity']));
+        $location = htmlspecialchars(strip_tags($this->content['location']));
 
-        $warehouse = htmlspecialchars(strip_tags($location->{'warehouse'}));
-        $allee = htmlspecialchars(strip_tags($location->{'allee'}));
-        $travee = htmlspecialchars(strip_tags($location->{'travee'}));
-        $niveau = htmlspecialchars(strip_tags($location->{'niveau'}));
-        $alveole = htmlspecialchars(strip_tags($location->{'alveole'}));
+        $warehouse = htmlspecialchars(strip_tags($location['warehouse']));
+        $allee = htmlspecialchars(strip_tags($location['allee']));
+        $travee = htmlspecialchars(strip_tags($location['travee']));
+        $niveau = htmlspecialchars(strip_tags($location['niveau']));
+        $alveole = htmlspecialchars(strip_tags($location['alveole']));
 
         // Bind data
         $stmt->bindParam(':product', $product);
@@ -226,11 +271,86 @@ class QueryClass {
             return null;
         }
 
-        // Print error if something goes wrong
-        // printf("Error: %s.\n", $stmt->error);
-
         return $stmt->error;
     }
+
+    public function verify_warehouses_query(){
+        if(sizeof($content) != 0){
+            echo 'invalid query ', "\n";
+            die(400);
+        }
+    }
+
+    public function verify_products_query(){
+
+        $invalid = 0;
+
+        if(sizeof($content) != 2){
+            $invalid = 1;
+        }
+
+        if(( ! array_key_exists("location", $content) || ! array_key_exists("product", $content))){
+            $invalid = 1;
+        }
+        else if(gettype($content['location']) != 'array' || gettype($content['product']) != 'string'){
+            $invalid = 1;
+        }
+
+        else {
+            $invalid = $this->verify_location($content['location']);
+        }
+        
+        if($invalid){
+            echo 'invalid query ', "\n";;
+            die(400);
+        }
+    }
+
+    public function verify_update_insert_query(){
+        
+        $invalid = 0;
+
+        if(sizeof($content) != 3){
+            $invalid = 1;
+        }
+        else if( ! array_key_exists("location", $content) || ! array_key_exists("product", $content)
+                || ! array_key_exists("newqt", $content)){
+                    
+            $invalid = 1;
+        }
+        else if(gettype($content['location']) != 'array' || gettype($content['product']) != 'string'
+                || gettype($content['newqt']) != 'integer'){
+                    
+            $invalid = 1;
+        }
+        else {
+            $invalid = $this->verify_location($content['location']);
+        }
+        
+        if($invalid){
+            echo 'invalid query ', "\n";;
+            die(400);
+        }
+    }
+
+    public function verify_location($location){
+
+        if(! array_key_exists("warehouse", $location) || ! array_key_exists("allee", $location)
+                || ! array_key_exists("travee", $location) || ! array_key_exists("niveau", $location)
+                || ! array_key_exists("alveole", $location)){
+                    
+            return 1;
+        }
+        else if(gettype($location['warehouse']) != 'string' || gettype($location['allee']) != 'string'
+                || gettype($location['travee']) != 'string' || gettype($location['niveau']) != 'string'
+                || gettype($location['alveole']) != 'string'){
+                
+            return 1;
+        }
+        return 0;
+    }
+
 }
+
 
 ?>

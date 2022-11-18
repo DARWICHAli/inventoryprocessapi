@@ -36,7 +36,7 @@ function create_token($username, $privileges, $seconds = 60 * 60 * 4): string {
 }
 
 
-/* Parse un JWT et émet une exceptio s'il est invalide
+/* Parse un JWT et émet une exception s'il est invalide
  * @param raw_token JWT sous forme de chaîne de caractère
  *
  * @return Le payload du JWT sous forme d'un dictionnaire
