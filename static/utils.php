@@ -1,6 +1,6 @@
 <?php 
 
-function verify_warehouses_query(){
+function verify_warehouses_query($content){
     if(sizeof($content) != 0){
         return 1;
     }
@@ -66,8 +66,14 @@ function verify_location($location){
     return 0;
 }
 
-function raise_https_error($msg, $error){
-    echo $msg;
+function raise_http_error($code, $msg, $error){
+    $response = json_encode('{  "code": ' . $code . ',
+                            "content": {
+                                "success": 0, 
+                                "message": ' . $msg . '
+
+                            }');
+    echo $response;
     die($error);
 }
 

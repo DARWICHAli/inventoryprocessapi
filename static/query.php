@@ -22,13 +22,19 @@
     }
 
     // Verify and parse request
-    if( ($msg = $post->verify_and_parse_request($data) !== null)){
-        raise_https_error($msg, 400);
+    try {
+        $post->verify_and_parse_request($data);
+    }  
+    catch(Exception $e) {
+        raise_http_error($e->getMessage(), $e->getCode());
     }
 
     // Verify token
-    if( ($msg = $post->verify_token($data) !== null)){
-        raise_https_error($msg, 401);
+    try{
+        $post->verify_token($data);
+    }
+    catch(Exception $e){
+        raise_http_error($e->getMessage(), $e->getCode());
     }
 
     // Execute query 
@@ -36,31 +42,77 @@
     switch($post->get_code()){
 
         case 1:
-            if($post->verify_update_insert_query()){
-                raise_https_error("Invalid request", 400);
+            // verify query
+            try{
+                $post->verify_update_insert_query();
             }
-            $response = $post->insert();
+            catch(Exception $e){
+                raise_http_error($e->getMessage(), $e->getCode());
+            }
+
+            // execute query
+            try {
+                $post->insert();
+            }
+            catch(Exception $e){
+                raise_http_error($e->getMessage(), $e->getCode());
+            }
             break;
 
         case 3:
-            if($post->verify_warehouses_query()){
-                raise_https_error("Invalid request", 400);
+            // verify query
+            try{
+                $post->verify_warehouses_query();
             }
-            $response = $post->getWarehouses();
+            catch(Exception $e){
+                raise_http_error($e->getMessage(), $e->getCode());
+            }
+
+            // execute query
+            try{
+                $response = $post->getWarehouses();
+            }
+            catch(Exception $e){
+                raise_http_error($e->getMessage(), $e->getCode());
+            }
             break;
 
         case 5:
-            if($post->verify_products_query()){
-                raise_https_error("Invalid request", 400);
+
+            // verify query
+            try {
+                $post->verify_products_query();
             }
-            $response = $post->getProducts();
+            catch(Exception $e){
+                raise_http_error($e->getMessage(), $e->getCode());
+            }
+
+            // execute query
+            try{
+                $response = $post->getProducts();
+            }
+            catch(Exception $e){
+                raise_http_error($e->getMessage(), $e->getCode());
+            }
             break;
 
         case 7:
-            if($post->verify_update_insert_query()){
-                raise_https_error("Invalid request", 400);
+
+            // verify query
+            try {
+                $post->verify_update_insert_query();
             }
-            $response = $post->update();
+            catch (Exception $e){
+                raise_http_error($e->getMessage(), $e->getCode());
+            }
+
+            // execute query
+            try{
+                $response = $post->update();
+            }
+            catch(Exception $e){
+                raise_http_error($e->getMessage(), $e->getCode());
+            }
             break;
 
         default:
@@ -69,5 +121,7 @@
 
     // Json Encoding
     echo json_encode($response);
+
+    // success
     die(200);
 ?>

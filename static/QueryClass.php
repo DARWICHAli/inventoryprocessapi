@@ -3,6 +3,9 @@
 include_once 'jwt.php';
 include_once 'utils.php';
 
+use Exception;
+
+
 class QueryClass {
 
     // DB stuff
@@ -25,27 +28,26 @@ class QueryClass {
     }
 
     // Vérifier et parser la requête
-    public function verify_and_parse_request($data) {
-
-        $msg = null;
+    public function parse_request($data) {
 
         if(sizeof($data) != 3){
-            $msg  = "Invalid request format";
+            throw new Exception("Invalid request format", 400);
         }
         else{
             if( ! array_key_exists("code", $data) || ! array_key_exists("token", $data)
                     || ! array_key_exists("content", $data)){
-                $msg  = "Invalid request format";
+                throw new Exception("Invalid request format", 400);
             }
             else{
                 if(gettype($data['code']) != 'integer' || !in_array($data['code'], array(1, 3, 4, 7))){
-                    $msg  = "Invalid request code " . $data['code'];
+                    throw new Exception("Invalid request code " . $data['code'], 400);
                 }
                 else if(gettype($data['token']) != 'string'){
-                    $msg  = "Invalid token format";
+                    throw new Exception("Invalid token format", 400);
+
                 }
                 else if(gettype($data['content']) != 'array'){
-                    $msg  = "Invalid content format";
+                    throw new Exception("Invalid content format", 400);
                 }
             }
         }
@@ -53,22 +55,17 @@ class QueryClass {
         $this->code = $data['code'];
         $this->token = $data['token'];
         $this->content = $data['content'];
-
-        return $msg;
     }
 
     public function verify_token(){
 
-        $msg = null; 
-
         try{
             $this->parsed_token = parse_token($this->token);
+            return null;
         }
         catch(Exception $e){
-            $msg = 'Invalid Token: ' . $e->getMessage();
+            throw new Exception('Invalid Token: ' . $e->getMessage(), 401);
         }
-
-        return $msg;
     }
 
     // Demande des nims d'entrepôts
@@ -78,10 +75,14 @@ class QueryClass {
       $query = '';
       
       // Prepare statement
-      $stmt = $this->conn->prepare($query);
+      if( ($stmt = $this->conn->prepare($query)) === false ){
+        throw new Exception("Invalid request body", 406);
+      }
 
       // Execute query
-      $stmt->execute();
+      if( ! $stmt->execute()){
+        throw new Exception("Invalid request body: " . $stmt->error, 406);
+      }
 
       $num = $stmt->rowCount();
       // Post array
@@ -110,13 +111,16 @@ class QueryClass {
         $query = '';
         
         // Prepare statement
-        $stmt = $this->conn->prepare($query);
+        if( ($stmt = $this->conn->prepare($query)) === false ){
+            throw new Exception("Invalid request body", 406);
+        } 
 
         // Execute query
-        $stmt->execute();
+        if(!$stmt->execute()){
+            throw new Exception("Invalid request body: " . $stmt->error, 406);
+        }
 
         $num = $stmt->rowCount();
-        // Post array
 
         $products = array();
 
@@ -158,7 +162,9 @@ class QueryClass {
         $query = '';
 
         // Prepare statement
-        $stmt = $this->conn->prepare($query);
+        if( ($stmt = $this->conn->prepare($query)) === false){
+            throw new Exception("Invalid request body", 406);
+        }
 
         // Clean data
         $product = htmlspecialchars(strip_tags($this->content['product']));
@@ -185,8 +191,9 @@ class QueryClass {
         if($stmt->execute()) {
             return array("code" => 6, "content" => array("success" => 1, "message" => ""));
         }
-
-        return array("code" => 6, "content" => array("success" => 0, "message" => $stmt->error));
+        else{
+            throw new Exception("Invalid request body: " . $stmt->error, 406);
+        }
     }
 
     // Update Post
@@ -195,7 +202,9 @@ class QueryClass {
         $query = '';
 
         // Prepare statement
-        $stmt = $this->conn->prepare($query);
+        if( ($stmt = $this->conn->prepare($query)) === false){
+            throw new Exception("Invalid request body", 406);
+        }
 
         // Clean data
         $product = htmlspecialchars(strip_tags($this->content['product']));
@@ -222,8 +231,9 @@ class QueryClass {
         if($stmt->execute()) {
             return array("code" => 6, "content" => array("success" => 1, "message" => ""));
         }
-
-        return array("code" => 6, "content" => array("success" => 0, "message" => $stmt->error));
+        else{
+            throw new Exception("Invalid request body: " . $stmt->error, 406);
+        }
     }
 }
 
