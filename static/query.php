@@ -78,7 +78,6 @@
             break;
 
         case 5:
-
             // verify query
             try {
                 $post->verify_products_query();
@@ -97,7 +96,6 @@
             break;
 
         case 7:
-
             // verify query
             try {
                 $post->verify_update_insert_query();
