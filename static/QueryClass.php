@@ -61,7 +61,6 @@ class QueryClass {
 
         try{
             $this->parsed_token = parse_token($this->token);
-            return null;
         }
         catch(Exception $e){
             throw new Exception('Invalid Token: ' . $e->getMessage(), 401);
@@ -85,8 +84,8 @@ class QueryClass {
       }
 
       $num = $stmt->rowCount();
-      // Post array
 
+      // Post array
       $warehouse_list = array();
       
       if($num > 0){
