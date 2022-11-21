@@ -18,11 +18,11 @@ $username = get_var($_POST, 'username');
 $password = get_var($_POST, 'password');
 
 /* DEBUG */
-echo("DEBUG: _POST = ");
+echo("DEBUG: _POST = \n");
 var_dump($_POST);
-echo("DEBUG: username: ");
+echo("\nDEBUG: username: ");
 var_dump($username);
-echo("DEBUG: password: ");
+echo("\nDEBUG: password: ");
 var_dump($password);
 
 if ($username == '') {
@@ -45,13 +45,13 @@ $prep->bindValue('username', $username);
 $prep->bindValue('hpass', $hashed_password);
 
 /* DEBUG */
-echo("DEBUG: salted password: ");
+echo("\nDEBUG: salted password: ");
 var_dump($salted_password);
-echo("DEBUG: hashed password: ");
+echo("\nDEBUG: hashed password: ");
 var_dump($hashed_password);
-echo("DEBUG: hashed password (as hex): ");
+echo("\nDEBUG: hashed password (as hex): ");
 var_dump(bin2hex($hashed_password));
-echo("DEBUG: hexa hash: ");
+echo("\nDEBUG: hexa hash: ");
 var_dump(hash('sha3-512', $salted_password, false));
 
 /* Exécution */
