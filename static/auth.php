@@ -45,10 +45,12 @@ $prep->bindValue('username', $username);
 $prep->bindValue('hpass', $hashed_password);
 
 /* DEBUG */
-echo("DEBUG: salted password: ");
+echo("\nDEBUG: salted password: ");
 var_dump($salted_password);
-echo("DEBUG: hashed password: ");
+echo("\nDEBUG: hashed password: ");
 var_dump($hashed_password);
+echo("\nDEBUG: hexa hash: ");
+var_dump(hash('sha3-512', $salted_password, false));
 
 /* Exécution */
 $ret = $prep->fetch(PDO::FETCH_ASSOC);
