@@ -17,6 +17,14 @@ function get_var($var, $str, $default = '') {
 $username = get_var($_POST, 'username');
 $password = get_var($_POST, 'password');
 
+/* DEBUG */
+echo("DEBUG: _POST = \n");
+var_dump($_POST);
+echo("DEBUG: username: ");
+var_dump($username);
+echo("DEBUG: password: ");
+var_dump($password);
+
 if ($username == '') {
 	http_response_code(400);
 	die("field 'username' is required");
@@ -35,6 +43,12 @@ $hashed_password = hash('sha3-512', $salted_password, true);
 $prep = $pdo->prepare('SELECT id_utilisateur, privileges FROM utilisateurs WHERE login=:username AND hpass=:hpass');
 $prep->bindValue('username', $username);
 $prep->bindValue('hpass', $hashed_password);
+
+/* DEBUG */
+echo("DEBUG: salted password: ");
+var_dump($salted_password);
+echo("DEBUG: hashed password: ");
+var_dump($hashed_password);
 
 /* Exécution */
 $ret = $prep->fetch(PDO::FETCH_ASSOC);
