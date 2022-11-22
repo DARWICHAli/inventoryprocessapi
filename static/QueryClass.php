@@ -201,8 +201,6 @@ class QueryClass {
             $alveole = true;
         }
 
-        // fin requete
-        $query .= ';';
         
         // Prepare statement
         if( ($stmt = $this->conn->prepare($query)) === false ){
