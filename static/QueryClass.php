@@ -104,41 +104,140 @@ class QueryClass {
 
 
     // Demande d'information sur les produits
-    // TO DO: revoir les '*' au parsing
     public function getProducts() {
+
+        $product = false;
+        $warehouse = false;
+        $allee = false;
+        $travee = false;
+        $niveau = false;
+        $alveole = false;
+        $where = false;
+        $first = '';
 
         // Create query
         $query = 'SELECT A.nom as product, S.quantity as quantity, E.nom as warehouse, A.allee as allee, 
-                            T.travee as travee, N.niveau as niveau, AV.alveole as alevole
-                    FROM stock S 
-                            INNER JOIN
-                            article A
-                            INNER JOIN 
-                            entrepot_site ES
-                            INNER JOIN
-                            entrepot E
-                            INNER JOIN
-                            allee A
-                            INNER JOIN
-                            travee T
-                            INNER JOIN
-                            niveau N
-                            INNER JOIN
-                            alveole AV
-                            ON S.id_article = A.id_article
-                            ON S.entrepot_site = ES.entrepot_site
-                            ON E.entrepot_id = ES.entrepot_id
-                            ON A.id_allee = ES.id_allee
-                            ON T.id_travee = ES.id_travee
-                            ON N.id_niveau = ES.id_niveau
-                            ON AV.id_alveole = ES.id_alveole
-                            ';
+                T.travee as travee, N.niveau as niveau, AV.alveole as alevole
+                FROM stock S
+                INNER JOIN
+                article A
+                INNER JOIN 
+                entrepot_site ES
+                INNER JOIN
+                entrepot E
+                INNER JOIN
+                allee A
+                INNER JOIN
+                travee T
+                INNER JOIN
+                niveau N
+                INNER JOIN
+                alveole AV
+                ON S.id_article = A.id_article
+                ON S.entrepot_site = ES.entrepot_site
+                ON E.entrepot_id = ES.entrepot_id
+                ON A.id_allee = ES.id_allee
+                ON T.id_travee = ES.id_travee
+                ON N.id_niveau = ES.id_niveau
+                ON AV.id_alveole = ES.id_alveole';
+
+        if( strcmp($content['product'], "*") !== 0 ){
+            $query .= ' WHERE A.code_produit = :product';
+            $product = true;
+            $where = true;
+        }
+
+        $location = $content['location'];
+
+        if( strcmp($location['warehouse'], "*") !== 0 ){
+            if($where)
+                $first = ' AND ';
+            else
+                $first = ' WHERE ';
+            $query .= $first . 'E.nom = :warehouse';
+            $warehouse = true;
+            $where = true;
+        }
+
+        if( strcmp($location['allee'], "*") !== 0 ){
+            if($where)
+                $first = ' AND ';
+            else
+                $first = ' WHERE ';
+            $query .= $first . 'A.allee = :allee';
+            $allee = true;
+            $where = true;
+        }
+
+        if( strcmp($location['travee'], "*") !== 0 ){
+            if($where)
+                $first = ' AND ';
+            else
+                $first = ' WHERE ';
+            $query .= $first . 'T.travee = :travee';
+            $travee = true;
+            $where = true;
+        }
+
+        if( strcmp($location['niveau'], "*") !== 0 ){
+            if($where)
+                $first = ' AND ';
+            else
+                $first = ' WHERE ';
+            $query .= $first . 'N.niveau = :niveau';
+            $niveau = true;
+            $where = true;
+        }
+
+        if( strcmp($location['alveole'], "*") !== 0 ){
+            if($where)
+                $first = ' AND ';
+            else
+                $first = ' WHERE ';
+            $query .= $first . 'AV.alveole = :alveole';
+            $alveole = true;
+        }
+
+        // fin requete
+        $query .= ';';
         
         // Prepare statement
         if( ($stmt = $this->conn->prepare($query)) === false ){
             throw new Exception("Invalid request body", 406);
         } 
 
+        // Clean & Bind data
+        $location = $this->content['location'];
+    
+        if($product){
+            $product = htmlspecialchars(strip_tags($this->content['product']));
+            $stmt->bindParam(':product', $product);
+        }
+        if($quantity){
+            $quantity = htmlspecialchars(strip_tags($this->content['quantity']));
+            $stmt->bindParam(':quantity', $quantity);
+        }
+        if($warehouse){
+            $warehouse = htmlspecialchars(strip_tags($location['warehouse']));
+            $stmt->bindParam(':warehouse', $warehouse);
+        }
+        if($allee){
+            $allee = htmlspecialchars(strip_tags($location['allee']));
+            $stmt->bindParam(':allee', $allee);
+        }
+        if($travee){
+            $travee = htmlspecialchars(strip_tags($location['travee']));
+            $stmt->bindParam(':travee', $travee);
+        }
+        if($niveau){
+            $niveau = htmlspecialchars(strip_tags($location['niveau']));
+            $stmt->bindParam(':niveau', $niveau);
+        }
+        if($alveole){
+            $alveole = htmlspecialchars(strip_tags($location['alveole']));
+            $stmt->bindParam(':alveole', $alveole);
+        }
+            
         // Execute query
         if(!$stmt->execute()){
             throw new Exception("Invalid request body: " . $stmt->error, 406);
