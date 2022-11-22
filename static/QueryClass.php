@@ -116,8 +116,8 @@ class QueryClass {
         $first = '';
 
         // Create query
-        $query = 'SELECT A.nom as product, S.quantity as quantity, E.nom as warehouse, A.allee as allee, 
-                T.travee as travee, N.niveau as niveau, AV.alveole as alevole
+        $query = 'SELECT A.code_produit as code, A.nom as product, S.quantity as quantity, E.nom as warehouse, A.allee as allee, 
+                T.travee as travee, N.niveau as niveau, AV.alveole as alveole
                 FROM stock S
                 INNER JOIN
                 article A
@@ -140,6 +140,9 @@ class QueryClass {
                 ON T.id_travee = ES.id_travee
                 ON N.id_niveau = ES.id_niveau
                 ON AV.id_alveole = ES.id_alveole';
+
+
+        // concaténations de clauses WHERE si nécessaire
 
         if( strcmp($content['product'], "*") !== 0 ){
             $query .= ' WHERE A.code_produit = :product';
