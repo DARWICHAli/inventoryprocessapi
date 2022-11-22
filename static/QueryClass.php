@@ -39,7 +39,7 @@ class QueryClass {
                 throw new Exception("Invalid request format", 400);
             }
             else{
-                if(gettype($data['code']) != 'integer' || !in_array($data['code'], array(1, 3, 4, 7))){
+                if(gettype($data['code']) != 'integer' || ! in_array($data['code'], array(1, 3, 4, 7))){
                     throw new Exception("Invalid request code " . $data['code'], 400);
                 }
                 else if(gettype($data['token']) != 'string'){
@@ -67,11 +67,11 @@ class QueryClass {
         }
     }
 
-    // Demande des nims d'entrepôts
+    // Demande des noms d'entrepôts
     public function getWarehouses() {
 
       // Create query
-      $query = '';
+      $query = 'SELECT nom FROM entrepot';
       
       // Prepare statement
       if( ($stmt = $this->conn->prepare($query)) === false ){
@@ -90,10 +90,10 @@ class QueryClass {
       
       if($num > 0){
 
-        while($row = $result->fetch(PDO::FETCH_ASSOC)) {
+        while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
           extract($row);
             // à adapter avec les noms des colonnes de la table warehouse
-          array_push($warehouse_list, $warehouse_name);
+          array_push($warehouse_list, $nom);
         }
       }
 
@@ -103,11 +103,36 @@ class QueryClass {
     }
 
 
-    // Get Posts
+    // Demande d'information sur les produits
+    // TO DO: revoir les '*' au parsing
     public function getProducts() {
 
         // Create query
-        $query = '';
+        $query = 'SELECT A.nom as product, S.quantity as quantity, E.nom as warehouse, A.allee as allee, 
+                            T.travee as travee, N.niveau as niveau, AV.alveole as alevole
+                    FROM stock S 
+                            INNER JOIN
+                            article A
+                            INNER JOIN 
+                            entrepot_site ES
+                            INNER JOIN
+                            entrepot E
+                            INNER JOIN
+                            allee A
+                            INNER JOIN
+                            travee T
+                            INNER JOIN
+                            niveau N
+                            INNER JOIN
+                            alveole AV
+                            ON S.id_article = A.id_article
+                            ON S.entrepot_site = ES.entrepot_site
+                            ON E.entrepot_id = ES.entrepot_id
+                            ON A.id_allee = ES.id_allee
+                            ON T.id_travee = ES.id_travee
+                            ON N.id_niveau = ES.id_niveau
+                            ON AV.id_alveole = ES.id_alveole
+                            ';
         
         // Prepare statement
         if( ($stmt = $this->conn->prepare($query)) === false ){
@@ -125,7 +150,7 @@ class QueryClass {
 
         if($num > 0){
             
-            while($row = $result->fetch(PDO::FETCH_ASSOC)) {
+            while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
                 extract($row);
 
@@ -139,7 +164,7 @@ class QueryClass {
 
                 $product_item = array(
                     'code' => $code,
-                    'name' => $product_name,
+                    'name' => $product,
                     'quantity' => $quantity,
                     'location' => $location
                 );
@@ -154,11 +179,23 @@ class QueryClass {
         return array("code" => 4, "content" => $result);
     }
 
-    // Insert Post
+    // Ajout d'un produit au stock
     public function insert() {
 
-        // Create query
-        $query = '';
+         // Query
+         $query = 'INSERT INTO stock VALUES(:quantity, ES.id_site, AR.id_article)
+                    SELECT AR.id_article
+                    FROM article AR
+                    WHERE AR.code_produit = :product
+                    UNION ALL
+                    SELECT ES.id_site
+                    FROM entrepot_site ES
+                    WHERE ES.id_entrepot = :warehouse,
+                        ES.id_allee = :allee,
+                        ES.id_travee = :travee,
+                        ES.id_niveau = :niveau,
+                        ES.id_alveole = :alveole
+                    ';
 
         // Prepare statement
         if( ($stmt = $this->conn->prepare($query)) === false){
@@ -168,8 +205,7 @@ class QueryClass {
         // Clean data
         $product = htmlspecialchars(strip_tags($this->content['product']));
         $quantity = htmlspecialchars(strip_tags($this->content['quantity']));
-        $location = htmlspecialchars(strip_tags($this->content['location']));
-
+        $location = $this->content['location'];
         $warehouse = htmlspecialchars(strip_tags($location['warehouse']));
         $allee = htmlspecialchars(strip_tags($location['allee']));
         $travee = htmlspecialchars(strip_tags($location['travee']));
@@ -179,7 +215,6 @@ class QueryClass {
         // Bind data
         $stmt->bindParam(':product', $product);
         $stmt->bindParam(':quantity', $quantity);
-
         $stmt->bindParam(':warehouse', $warehouse);
         $stmt->bindParam(':allee', $allee);
         $stmt->bindParam(':travee', $travee);
@@ -191,14 +226,26 @@ class QueryClass {
             return array("code" => 6, "content" => array("success" => 1, "message" => ""));
         }
         else{
-            throw new Exception("Invalid request body: " . $stmt->error, 406);
+            throw new Exception("Invalid request body: " . $stmt_stock->error, 406);
         }
     }
 
-    // Update Post
+    // Ajustement de stock
     public function update() {
        // Create query
-        $query = '';
+        $query = 'UPDATE stock 
+                    SET S.quantity = S.quantity + :quantity,
+                    FROM article as A
+                    INNER JOIN stock as S
+                    INNER JOIN entrepot_site as ES
+                    ON A.id_article = S.id_article
+                    ON S.id_site = ES.id_site
+                    WHERE S.code_produit = :product,
+                        ES.id_entrepot = :warehouse,
+                        ES.id_allee = :allee,
+                        ES.id_travee = :travee,
+                        ES.id_niveau = :niveau,
+                        ES.id_alveole = :alveole';
 
         // Prepare statement
         if( ($stmt = $this->conn->prepare($query)) === false){
@@ -208,7 +255,7 @@ class QueryClass {
         // Clean data
         $product = htmlspecialchars(strip_tags($this->content['product']));
         $quantity = htmlspecialchars(strip_tags($this->content['quantity']));
-        $location = htmlspecialchars(strip_tags($this->content['location']));
+        $location = $this->content['location'];
 
         $warehouse = htmlspecialchars(strip_tags($location['warehouse']));
         $allee = htmlspecialchars(strip_tags($location['allee']));
@@ -219,7 +266,6 @@ class QueryClass {
         // Bind data
         $stmt->bindParam(':product', $product);
         $stmt->bindParam(':quantity', $quantity);
-
         $stmt->bindParam(':warehouse', $warehouse);
         $stmt->bindParam(':allee', $allee);
         $stmt->bindParam(':travee', $travee);

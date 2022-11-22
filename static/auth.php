@@ -32,7 +32,7 @@ $salted_password = "mamazon.zefresk.com#" . $_POST['password'];
 $hashed_password = hash('sha3-512', $salted_password, true);
 
 /* Préparation de la requête */
-$prep = $pdo->prepare('SELECT prvileges FROM utilisateurs WHERE login=:username AND hpass=:hpass');
+$prep = $pdo->prepare('SELECT privileges FROM utilisateurs WHERE login=:username AND hpass=:hpass');
 $prep->bindValue('username', $username);
 $prep->bindValue('hpass', $hashed_password);
 
@@ -47,7 +47,6 @@ if (!$ret) {
 	echo($jwt);
 	die(200);
 }
-
 
 
 ?>

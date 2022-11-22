@@ -15,6 +15,7 @@ CREATE TABLE article
     code_produit VARCHAR(10) NOT NULL,
     description VARCHAR(100)
 );
+
 CREATE TABLE entrepot
 (
     id_entrepot INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -79,7 +80,7 @@ CREATE TABLE transactions
 	id_site INT NOT NULL,
 	delta INT NOT NULL,
 	estampille DATETIME NOT NULL,
-    	FOREIGN KEY (id_utilisateur) REFERENCES utilisateurs(id_utilisateur),
+    FOREIGN KEY (id_utilisateur) REFERENCES utilisateurs(id_utilisateur),
 	FOREIGN KEY (id_article) REFERENCES article(id_article),
 	FOREIGN KEY (id_site) REFERENCES entrepot_site(id_site)
 );
