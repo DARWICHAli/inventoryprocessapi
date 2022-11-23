@@ -37,6 +37,9 @@ $prep->bindValue('username', $username);
 $prep->bindValue('hpass', $hashed_password);
 
 /* Exécution */
+$prep->execute();
+
+/* Récupération */
 $ret = $prep->fetch(PDO::FETCH_ASSOC);
 if (!$ret) {
 	http_response_code(403);
