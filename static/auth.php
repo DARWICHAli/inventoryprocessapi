@@ -55,6 +55,9 @@ echo("\nDEBUG: hexa hash: ");
 var_dump(hash('sha3-512', $salted_password, false));
 
 /* Exécution */
+$prep->execute();
+
+/* Récupération */
 $ret = $prep->fetch(PDO::FETCH_ASSOC);
 if (!$ret) {
 	http_response_code(403);
