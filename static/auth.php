@@ -35,6 +35,13 @@ if ($password == '') {
 	die("field 'password' is required");
 }
 
+/* DEBUG ONLY */
+$req = $pdo->prepare('SELECT * FROM utilisateurs');
+$req->execute();
+$res = $req->fetchAll(PDO::FETCH_ASSOC);
+echo("\nDEBUG: all users: ");
+print_r($res);
+
 /* Génération d'un hash SHA3-512 salé */
 $salted_password = "mamazon.zefresk.com#" . $_POST['password'];
 $hashed_password = hash('sha3-512', $salted_password, true);
