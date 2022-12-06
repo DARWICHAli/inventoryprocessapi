@@ -44,7 +44,7 @@
         case 1:
             // verify query
             try{
-                $post->verify_update_insert_query();
+                verify_insert_query();
             }
             catch(Exception $e){
                 raise_http_error($e->getMessage(), $e->getCode());
@@ -62,7 +62,7 @@
         case 3:
             // verify query
             try{
-                $post->verify_warehouses_query();
+                verify_warehouses_query();
             }
             catch(Exception $e){
                 raise_http_error($e->getMessage(), $e->getCode());
@@ -80,7 +80,7 @@
         case 5:
             // verify query
             try {
-                $post->verify_products_query();
+                verify_products_query();
             }
             catch(Exception $e){
                 raise_http_error($e->getMessage(), $e->getCode());
@@ -98,7 +98,7 @@
         case 7:
             // verify query
             try {
-                $post->verify_update_insert_query();
+                verify_update_query();
             }
             catch (Exception $e){
                 raise_http_error($e->getMessage(), $e->getCode());

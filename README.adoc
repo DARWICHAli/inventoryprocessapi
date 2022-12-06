@@ -81,9 +81,9 @@ Chaque requête doit posséder un champ `token` contenant un JWT obtenu depuis l
 
 Les champs mentionnés plus bas sont ceux du super-champ `content`.
 
-=== Réponse du serveur à ajout (code 0)
+=== Réponse du serveur à création (code 0)
 
-Réponse renvoyée par le serveur après une tentative d'ajout.
+Réponse renvoyée par le serveur après une tentative de création.
 
 NOTE: Si tout s'est bien passé le code HTTP 200 est envoyé. Dans ce cas, il n'est pas nécessaire de parser cette réponse.
 
@@ -108,20 +108,22 @@ NOTE: Si tout s'est bien passé le code HTTP 200 est envoyé. Dans ce cas, il n'
 ----
 ****
 
-=== Ajout d'un objet (code 1)
+=== Création d'un objet (code 1)
 
-Requête ajoutant un objet au stock.
+Requête ajoutant nouvel un objet aux articles et au stock.
 
 .Champs
 |===
 | **Nom** | Type | Valeur
-| location | **JSON** | emplacement
+| location | **array** | emplacement
 | location.warehouse | _string_ | Code magasin
 | location.allee | _string_ | allée
 | location.travee | _string_ | travée
 | location.niveau | _string_ | niveau
 | location.alveole | _string_ | emplacement dans l'avéole
 | product | _string_ | code produit
+| name	  | _string_ | nom produit
+| description | _string_ | description produit
 | qantity | _int_ | quantité
 |===
 
@@ -134,13 +136,15 @@ Requête ajoutant un objet au stock.
     "token": "VALID",
     "content": {
 		"location": {
-			"warehouse": "MAG1"
+			"warehouse": "MAG1",
 			"allee": "A",
 			"travee": "02",
 			"niveau": "02",
 			"alveole": "03",
 		},
 		"product": "E961307",
+		"name" : "nom produit",
+		"description" : "description produit",
 		"quantity": 100
     }
 }
@@ -205,11 +209,11 @@ Réponse renvoyée par le serveur après une demande des produits présents dans
 .Champs
 |===
 | **Nom** | Type | Valeur
-| list | _array[JSON]_ | Liste des Produits
+| list | _array[array]_ | Liste des Produits
 | list[N].product | _id_ | Code produit
 | list[N].name | _string_ | Nom du produit
 | list[N].quantity | _int_ | Quantité à cet endroit
-| list[N].location | **JSON** | emplacement
+| list[N].location | **array** | emplacement
 | list[N].location.warehouse | _string_ | Code magasin
 | list[N].location.allee | _string_ | allée
 | list[N].location.travee | _string_ | travée
@@ -230,7 +234,7 @@ Réponse renvoyée par le serveur après une demande des produits présents dans
 			"name": "rollers",
 			"quantity": 100,
 			"location": {
-				"warehouse": "MAG1"
+				"warehouse": "MAG1",
 				"allee": "A",
 				"travee": "02",
 				"niveau": "02",
@@ -270,7 +274,7 @@ Le serveur répond avec un JSON de code 4.
     "token": "VALID",
     "content": {
 		"location": {
-			"warehouse": "MAG1"
+			"warehouse": "MAG1",
 			"allee": "*",
 			"travee": "*",
 			"niveau": "*",
@@ -286,21 +290,21 @@ Cet exemple extrait tous les produits de l'entrepot _MAG1_.
 
 === Ajustement de stock (code 7)
 
-Requête ajustant un objet présent dans le stock.
+Requête ajustant un objet présent dans le stock (ajout (quantity > 0) ou retrait (quantity < 0) ).
 
-Le serveur répond avec un JSON de code 0.
+Le serveur répond avec un JSON de code 6.
 
 .Champs
 |===
 | **Nom** | Type | Valeur
-| location | **JSON** | emplacement
+| location | **array** | emplacement
 | location.warehouse | _string_ | Code magasin
 | location.allee | _string_ | allée
 | location.travee | _string_ | travée
 | location.niveau | _string_ | niveau
 | location.alveole | _string_ | emplacement dans l'avéole
 | product | _string_ | code produit
-| newqt | _int_ | Nouvelle quantité
+| quantity | _int_ | Nouvelle quantité
 |===
 
 .Exemple
@@ -308,18 +312,18 @@ Le serveur répond avec un JSON de code 0.
 [source, json]
 ----
 {
-    "code": 1,
+    "code": 7,
     "token": "VALID",
     "content": {
 		"location": {
-			"warehouse": "MAG1"
+			"warehouse": "MAG1",
 			"allee": "A",
 			"travee": "02",
 			"niveau": "02",
 			"alveole": "03",
 		},
 		"product": "E961307",
-		"newqt": 50
+		"quantity": 50
     }
 }
 ----
