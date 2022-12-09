@@ -335,13 +335,22 @@ Cette section détaille les différentes pages de l'API **pour les développeurs
 
 === Architecture
 
-* `static/bdd.php` : Header à inclure pour se connecter à la BDD. Il exporte un objet _PDO_ nommé `$pdo` permettant d'accéder au SGBD.
+* `static` : Contient les pages accessibles à l'utilisateur final.
 
-* `static/secrets.php` : Header chargé de charger les secrets (clés RSA, etc.) depuis l'environnement. Exporte les variables `$private_key` et `public_key`.
+** `auth.php` : Page chargée de l'authentification. (Voir plus haut)
 
-* `static/config.php` : Header définissant les paramètres globaux du serveur (exception, etc.). **À inclure dans toutes les pages publiques**.
+** `static/include` : Dossier contenant des fonctions, classes et variables utiles. tout son contenu est **non accessible à l'utilisateur de l'API.
 
-* `static/jwt.php` : Header définissant les fonctions liées au JWT. Exporte les fonctions `parse_token`, et `create_token`.
+*** `static/include/bdd.php` : Header à inclure pour se connecter à la BDD. Il exporte un objet _PDO_ nommé `$pdo` permettant d'accéder au SGBD.
+
+*** `static/include/secrets.php` : Header chargé de charger les secrets (clés RSA, etc.) depuis l'environnement. Exporte les variables `$private_key` et `public_key`.
+
+*** `static/include/config.php` : Header définissant les paramètres globaux du serveur (exception, etc.). **À inclure dans toutes les pages publiques**.
+
+*** `static/include/jwt.php` : Header définissant les fonctions liées au JWT. Exporte les fonctions `parse_token`, et `create_token`.
+
+* `secrets` : Dossier contenant les fichiers sensibles. **Non accessible à l'utilisateur de l'API.**
+
 
 === Format du JWT
 
@@ -369,6 +378,7 @@ Tous les champs du header sont fixes. L'algorithme RS256 est utilisé et combine
 {
   "iss": "mamazon.zefresk.com", /* fixe */
   "sub": "username",
+  "uid": 154,
   "aud": "1",
   "iat": 1516239022,
   "exp": 1516239023,
@@ -379,6 +389,8 @@ Tous les champs du header sont fixes. L'algorithme RS256 est utilisé et combine
 * `iss`: _issuer_, émetteur du JWT. Fixé à 'mamazon.zefresk.com'.
 
 * `sub`: _subject_, nom d'utilisateur du récepteur.
+
+* `uid`: _user ID_, entier correspondant à `id_utilisateur` du SGBD.
 
 * `aud`: _audience_, niveau de privilèges du récepteur.
 
