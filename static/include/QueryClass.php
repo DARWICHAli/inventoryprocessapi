@@ -3,9 +3,6 @@
 include_once 'include/jwt.php';
 include_once 'include/utils.php';
 
-use Exception;
-
-
 class QueryClass {
 
     // DB stuff
