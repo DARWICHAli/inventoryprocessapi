@@ -18,7 +18,7 @@
 
     // Verify valid JSON format
     if (json_last_error() !== JSON_ERROR_NONE) {
-        raise_https_error("Invalid JSON format \n", 400);
+        raise_http_error("Invalid JSON format \n", 400);
     }
 
     // Verify and parse request
@@ -38,7 +38,7 @@
     }
 
     // Execute query 
-    $response;
+    $response = null;
     switch($post->get_code()){
 
         case 1:
