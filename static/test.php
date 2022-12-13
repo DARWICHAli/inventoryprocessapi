@@ -1,4 +1,8 @@
-<?php 
+<html>
+
+</html>
+
+<?php
 
 $data = json_decode('{  "code",
                                 "alveole": "*"

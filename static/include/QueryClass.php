@@ -1,7 +1,7 @@
 <?php
 
-include_once 'jwt.php';
-include_once 'utils.php';
+include_once 'include/jwt.php';
+include_once 'include/utils.php';
 
 use Exception;
 

@@ -2,11 +2,11 @@
     // Headers
     header('Content-Type: application/json');
 
-    include_once 'QueryClass.php';
-    include_once 'utils.php';
+    include_once 'include/QueryClass.php';
+    include_once 'include/utils.php';
 
-    require_once 'config.php';
-    require_once 'bdd.php';
+    require_once 'include/config.php';
+    require_once 'include/bdd.php';
 
     global $pdo;
 
