@@ -98,7 +98,7 @@ function verify_location($location){
 
 function raise_http_error($msg, $error){
     echo $msg;
-    die($code);
+    die($error);
 }
 
 ?>
