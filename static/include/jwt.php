@@ -1,13 +1,18 @@
 <?php
-require_once 'secrets.php';
+
+require_once 'include/secrets.php';
 
 require $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 
 use Firebase\JWT\JWT; /* REQUIS */
+use Firebase\JWT\Key;
 
 /* Gestion des JWT basée sur Firebase */
 
 JWT::$leeway = 60;
+
+global $public_key;
+$public_key_jwt = new Key($public_key, 'RS256');
 
 
 /* Crée un JWT
@@ -33,13 +38,13 @@ function create_token($username, $uid, $privileges, $seconds = 60 * 60 * 4): str
 
 	'iat' => $iat,
 	'exp' => $exp, // 12h
-	'jti' => base64_encode(random_bytes(8))
+	'jti' => rtrim(base64_encode(random_bytes(8)), "=")
 	];
 	return JWT::encode($token_payload, $private_key, 'RS256');
 }
 
 
-/* Parse un JWT et émet une exceptio s'il est invalide
+/* Parse un JWT et émet une exception s'il est invalide
  * @param raw_token JWT sous forme de chaîne de caractère
  *
  * @return Le payload du JWT sous forme d'un dictionnaire
@@ -47,7 +52,7 @@ function create_token($username, $uid, $privileges, $seconds = 60 * 60 * 4): str
  * Si le jeton est invalide, émet une exception.
  */
 function parse_token($raw_token): array{
-	global $public_key;
+	global $public_key_jwt;
 
-	return (array)JWT::decode($raw_token, $public_key);
+	return (array)JWT::decode($raw_token, $public_key_jwt);
 }
