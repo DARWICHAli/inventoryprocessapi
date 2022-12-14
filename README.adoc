@@ -11,6 +11,8 @@ v1.2 2022-11-15
 
 API d'intercommunication entre les interfaces et le backend.
 
+
+
 == Entrées / Sorties
 
 === JSON
@@ -35,7 +37,7 @@ Les réponses sont au format JSON si succès.
 
 === Pages
 
-L'API est comprise de deux pages : 
+L'API est comprise de deux pages :
 
 * `auth.php` pour l'authentification.
  
@@ -472,3 +474,14 @@ Tous les champs du header sont fixes. L'algorithme RS256 est utilisé et combine
 
 * `jti`: _JWT ID_, identifiant héxadécimal aléatoire du jeton pour éviter les attaques par replay.
 
+
+
+== model relationnel
+
+image::doc/mamazon_short.png[Model relationnel]
+
+nous somme basé sur un modèle relationnel qui se compose de 10 tables interconnectées.
+
+Pour créer une troisième forme normale dans la table **entrepot_site**, il faut s'assurer que tous les attributs de la table ne dépendent que de la clé primaire, et non pas d'une autre clé ou d'un groupe d'attributs non-clé.
+Pour ce faire, on peut créer des tables distinctes pour les attributs qui sont liés à d'autres attributs dans la table entrepot_site, comme les tables **allee**, **alveole**, **travee** et **niveau**.
+Ces tables seront liées à la table **entrepot_site** à l'aide de clés étrangères, ce qui permettra d'éliminer les dépendances entre les attributs non-clé dans la table entrepot_site. De cette manière, on pourra s'assurer que la table entrepot_site est dans la troisième forme normale.
