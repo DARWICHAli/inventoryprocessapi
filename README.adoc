@@ -476,11 +476,11 @@ Tous les champs du header sont fixes. L'algorithme RS256 est utilisé et combine
 
 
 
-== model relationnel
+=== Modèle relationnel
 
 image::doc/mamazon_short.png[Model relationnel]
 
-nous somme basé sur un modèle relationnel qui se compose de 10 tables interconnectées.
+nous nous sommes basés sur un modèle relationnel qui se compose de 10 tables interconnectées.
 
 Pour créer une troisième forme normale dans la table **entrepot_site**, il faut s'assurer que tous les attributs de la table ne dépendent que de la clé primaire, et non pas d'une autre clé ou d'un groupe d'attributs non-clé.
 Pour ce faire, on peut créer des tables distinctes pour les attributs qui sont liés à d'autres attributs dans la table entrepot_site, comme les tables **allee**, **alveole**, **travee** et **niveau**.
